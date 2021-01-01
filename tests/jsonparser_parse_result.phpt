@@ -1,20 +1,19 @@
 --TEST--
-simdjson_decode test
-
+JsonParser::parse() test
 --SKIPIF--
-<?php ?>
-
+<?php if (!extension_loaded("simdjson")) { print "skip"; } ?>
 --FILE--
 <?php
-$json = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . '_files' . DIRECTORY_SEPARATOR . 'result.json');
-$value = \simdjson_decode($json, false);
+
+$json = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . "_files" . DIRECTORY_SEPARATOR . "result.json");
+$value = JsonParser::parse($json, false);
 var_dump($value);
 
-$value = \simdjson_decode($json, true);
+$value = JsonParser::parse($json, true);
 var_dump($value);
 
 ?>
---EXPECTF--
+--EXPECT--
 object(stdClass)#1 (7) {
   ["result"]=>
   array(2) {
@@ -64,7 +63,7 @@ object(stdClass)#1 (7) {
       ["httpRequests"]=>
       int(0)
       ["executionTime"]=>
-      float(0.00014734268188477)
+      float(0.00014734268188476562)
       ["peakMemoryUsage"]=>
       int(2558)
     }
@@ -126,7 +125,7 @@ array(7) {
       ["httpRequests"]=>
       int(0)
       ["executionTime"]=>
-      float(0.00014734268188477)
+      float(0.00014734268188476562)
       ["peakMemoryUsage"]=>
       int(2558)
     }

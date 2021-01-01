@@ -16,8 +16,7 @@
 
 extern zend_module_entry simdjson_module_entry;
 
-#define PHP_SIMDJSON_VERSION                  "1.0.0"
-#define SIMDJSON_SUPPORT_URL                  "https://github.com/crazyxman/simdjson_php"
+#define PHP_SIMDJSON_VERSION                  "0.1.0"
 #define SIMDJSON_PARSE_FAIL                   0
 #define SIMDJSON_PARSE_SUCCESS                1
 #define SIMDJSON_PARSE_KEY_EXISTS             2
@@ -28,9 +27,15 @@ extern zend_module_entry simdjson_module_entry;
 #define SIMDJSON_RESOUCE_PJH_TYPE             3
 #define SIMDJSON_RESOUCE_PJ_TYPE              4
 
-
 extern PHPAPI void php_var_dump(zval **struc, int level);
 extern PHPAPI void php_debug_zval_dump(zval **struc, int level);
+
+#if PHP_VERSION_ID < 80000
+#define VALUE_ERROR(n, name, msg) php_error_docref(NULL, E_WARNING, "Argument #%d (%s) %s", n, name, msg); RETURN_FALSE
+#define RETURN_THROWS() return
+#else
+#define VALUE_ERROR(n, name, msg) zend_argument_value_error(n, msg); RETURN_THROWS()
+#endif
 
 ZEND_BEGIN_MODULE_GLOBALS(simdjson)
 ZEND_END_MODULE_GLOBALS(simdjson)

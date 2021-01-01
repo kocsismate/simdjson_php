@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace SimdjsonBench;
 
+use JsonParser;
 use PhpBench\Benchmark\Metadata\Annotations\Subject;
+use RuntimeException;
 
-if (!extension_loaded('simdjson')) {
-        exit;
+use function json_decode;
+
+if (!extension_loaded("simdjson")) {
+    die("simdjson must be loaded");
 }
 
 /**
@@ -20,7 +24,6 @@ if (!extension_loaded('simdjson')) {
  */
 class DecodeBench
 {
-
     /**
      * @var string
      */
@@ -29,39 +32,39 @@ class DecodeBench
     public function init(): void
     {
         $this->json = <<<EOF
-{ 
-  "result" : [ 
-    { 
-      "_key" : "70614", 
+{
+  "result" : [
+    {
+      "_key" : "70614",
       "_id" : "products/70614",
-      "_rev" : "_al3hU1K---", 
-      "Hello3" : "World3" 
-    }, 
-    { 
-      "_key" : "70616", 
-      "_id" : "products/70616", 
-      "_rev" : "_al3hU1K--A", 
-      "Hello4" : "World4" 
-    } 
-  ], 
-  "hasMore" : false, 
-  "count" : 2, 
-  "cached" : false, 
-  "extra" : { 
-    "stats" : { 
-      "writesExecuted" : 0, 
-      "writesIgnored" : 0, 
-      "scannedFull" : 4, 
-      "scannedIndex" : 0, 
-      "filtered" : 0, 
-      "httpRequests" : 0, 
-      "executionTime" : 0.00014734268188476562, 
-      "peakMemoryUsage" : 2558 
-    }, 
-    "warnings" : [ ] 
-  }, 
-  "error" : false, 
-  "code" : 201 
+      "_rev" : "_al3hU1K---",
+      "Hello3" : "World3"
+    },
+    {
+      "_key" : "70616",
+      "_id" : "products/70616",
+      "_rev" : "_al3hU1K--A",
+      "Hello4" : "World4"
+    }
+  ],
+  "hasMore" : false,
+  "count" : 2,
+  "cached" : false,
+  "extra" : {
+    "stats" : {
+      "writesExecuted" : 0,
+      "writesIgnored" : 0,
+      "scannedFull" : 4,
+      "scannedIndex" : 0,
+      "filtered" : 0,
+      "httpRequests" : 0,
+      "executionTime" : 0.00014734268188476562,
+      "peakMemoryUsage" : 2558
+    },
+    "warnings" : [ ]
+  },
+  "error" : false,
+  "code" : 201
 }
 EOF;
     }
@@ -74,7 +77,7 @@ EOF;
         $data = json_decode($this->json, true);
 
         if ('World3' !== $data['result'][0]['Hello3']) {
-            throw new \RuntimeException('error');
+            throw new RuntimeException('error');
         }
     }
 
@@ -86,7 +89,7 @@ EOF;
         $data = json_decode($this->json, false);
 
         if ('World3' !== $data->result[0]->Hello3) {
-            throw new \RuntimeException('error');
+            throw new RuntimeException('error');
         }
     }
 
@@ -95,10 +98,10 @@ EOF;
      */
     public function simdjsonDecodeAssoc()
     {
-        $data = \simdjson_decode($this->json, true);
+        $data = JsonParser::parse($this->json, true);
 
         if ('World3' !== $data['result'][0]['Hello3']) {
-            throw new \RuntimeException('error');
+            throw new RuntimeException('error');
         }
     }
 
@@ -107,11 +110,10 @@ EOF;
      */
     public function simdjsonDecode()
     {
-        $data = \simdjson_decode($this->json, false);
+        $data = JsonParser::parse($this->json, false);
 
         if ('World3' !== $data->result[0]->Hello3) {
-            throw new \RuntimeException('error');
+            throw new RuntimeException('error');
         }
     }
-
 }

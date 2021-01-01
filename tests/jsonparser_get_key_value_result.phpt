@@ -1,20 +1,19 @@
 --TEST--
-simdjson_key_value with deep string test
-
+JsonParser::getKeyValue() with deep string test
 --SKIPIF--
-<?php ?>
-
+<?php if (!extension_loaded("simdjson")) { print "skip"; } ?>
 --FILE--
 <?php
-$json = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . '_files' . DIRECTORY_SEPARATOR . 'result.json');
-$value = \simdjson_key_value($json, "result", false);
+
+$json = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . "_files" . DIRECTORY_SEPARATOR . "result.json");
+$value = JsonParser::getKeyValue($json, "result", false);
 var_dump($value);
 
-$value = \simdjson_key_value($json, "result", true);
+$value = JsonParser::getKeyValue($json, "result", true);
 var_dump($value);
 
 ?>
---EXPECTF--
+--EXPECT--
 array(2) {
   [0]=>
   object(stdClass)#1 (4) {

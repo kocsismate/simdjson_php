@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace SimdjsonBench;
 
+use JsonParser;
 use PhpBench\Benchmark\Metadata\Annotations\Subject;
 
-if (!extension_loaded('simdjson')) {
-        exit;
+if (!extension_loaded("simdjson")) {
+    die("simdjson must be loaded");
 }
 
 /**
@@ -34,39 +35,39 @@ class MultipleAccessBench
     public function init(): void
     {
         $this->json = <<<EOF
-{ 
-  "result" : [ 
-    { 
-      "_key" : "70614", 
+{
+  "result" : [
+    {
+      "_key" : "70614",
       "_id" : "products/70614",
-      "_rev" : "_al3hU1K---", 
-      "Hello3" : "World3" 
-    }, 
-    { 
-      "_key" : "70616", 
-      "_id" : "products/70616", 
-      "_rev" : "_al3hU1K--A", 
-      "Hello4" : "World4" 
-    } 
-  ], 
-  "hasMore" : false, 
-  "count" : 2, 
-  "cached" : false, 
-  "extra" : { 
-    "stats" : { 
-      "writesExecuted" : 0, 
-      "writesIgnored" : 0, 
-      "scannedFull" : 4, 
-      "scannedIndex" : 0, 
-      "filtered" : 0, 
-      "httpRequests" : 0, 
-      "executionTime" : 0.00014734268188476562, 
-      "peakMemoryUsage" : 2558 
-    }, 
-    "warnings" : [ ] 
-  }, 
-  "error" : false, 
-  "code" : 201 
+      "_rev" : "_al3hU1K---",
+      "Hello3" : "World3"
+    },
+    {
+      "_key" : "70616",
+      "_id" : "products/70616",
+      "_rev" : "_al3hU1K--A",
+      "Hello4" : "World4"
+    }
+  ],
+  "hasMore" : false,
+  "count" : 2,
+  "cached" : false,
+  "extra" : {
+    "stats" : {
+      "writesExecuted" : 0,
+      "writesIgnored" : 0,
+      "scannedFull" : 4,
+      "scannedIndex" : 0,
+      "filtered" : 0,
+      "httpRequests" : 0,
+      "executionTime" : 0.00014734268188476562,
+      "peakMemoryUsage" : 2558
+    },
+    "warnings" : [ ]
+  },
+  "error" : false,
+  "code" : 201
 }
 EOF;
 $this->jsonOther = <<<EOF
@@ -95,14 +96,14 @@ EOF;
      */
     public function simdjsonMultipleAccessSameDocument()
     {
-        $value = \simdjson_key_value($this->json, "result/0/Hello3", true);
-        $value2 = \simdjson_key_value($this->json, "code", true);
-        $value3 = \simdjson_key_value($this->json, "hasMore", true);
-        $value4 = \simdjson_key_value($this->json, "count", true);
-        $valueOther = \simdjson_key_value($this->jsonOther, "Image/Width", true);
-        $valueOther2 = \simdjson_key_value($this->jsonOther, "Cached", true);
-        $valueOther3 = \simdjson_key_value($this->jsonOther, "HasMore", true);
-        $valueOther4 = \simdjson_key_value($this->jsonOther, "Count", true);
+        $value = JsonParser::getKeyValue($this->json, "result/0/Hello3", true);
+        $value2 = JsonParser::getKeyValue($this->json, "code", true);
+        $value3 = JsonParser::getKeyValue($this->json, "hasMore", true);
+        $value4 = JsonParser::getKeyValue($this->json, "count", true);
+        $valueOther = JsonParser::getKeyValue($this->jsonOther, "Image/Width", true);
+        $valueOther2 = JsonParser::getKeyValue($this->jsonOther, "Cached", true);
+        $valueOther3 = JsonParser::getKeyValue($this->jsonOther, "HasMore", true);
+        $valueOther4 = JsonParser::getKeyValue($this->jsonOther, "Count", true);
 
         if ('World3' !== $value) {
             throw new \RuntimeException('error');
@@ -136,14 +137,14 @@ EOF;
      */
     public function simdjsonMultipleAccessDifferentDocument()
     {
-        $value = \simdjson_key_value($this->json, "result/0/Hello3", true);
-        $valueOther = \simdjson_key_value($this->jsonOther, "Image/Width", true);
-        $value2 = \simdjson_key_value($this->json, "code", true);
-        $valueOther2 = \simdjson_key_value($this->jsonOther, "Cached", true);
-        $value3 = \simdjson_key_value($this->json, "hasMore", true);
-        $valueOther3 = \simdjson_key_value($this->jsonOther, "HasMore", true);
-        $value4 = \simdjson_key_value($this->json, "count", true);
-        $valueOther4 = \simdjson_key_value($this->jsonOther, "Count", true);
+        $value = JsonParser::getKeyValue($this->json, "result/0/Hello3", true);
+        $valueOther = JsonParser::getKeyValue($this->jsonOther, "Image/Width", true);
+        $value2 = JsonParser::getKeyValue($this->json, "code", true);
+        $valueOther2 = JsonParser::getKeyValue($this->jsonOther, "Cached", true);
+        $value3 = JsonParser::getKeyValue($this->json, "hasMore", true);
+        $valueOther3 = JsonParser::getKeyValue($this->jsonOther, "HasMore", true);
+        $value4 = JsonParser::getKeyValue($this->json, "count", true);
+        $valueOther4 = JsonParser::getKeyValue($this->jsonOther, "Count", true);
 
         if ('World3' !== $value) {
             throw new \RuntimeException('error');
@@ -171,6 +172,4 @@ EOF;
             throw new \RuntimeException('error');
         }
     }
-
-
 }

@@ -46,7 +46,7 @@ if test "$PHP_SIMDJSON" != "no"; then
 
   AC_DEFINE(HAVE_SIMDJSON, 1, [whether simdjson is enabled])
   PHP_NEW_EXTENSION(simdjson,
-      simdjson.cpp                        \
+      php_simdjson.cpp                    \
       src/bindings.cpp                    \
       src/simdjson.cpp,
     $ext_shared)

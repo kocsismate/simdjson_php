@@ -1,0 +1,35 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  release:
+    types: [created]
+
+jobs:
+  PHP80-alpine:
+    name: PHP 8.0 Alpine 3.12
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+
+      - name: "Build extension"
+        run: "docker build -t simdjsontest -f docker_php8.0-alpine ."
+
+      - name: "Show"
+        run: "docker run --rm simdjsontest php --ri simdjson"
+
+    PHP74-alpine:
+      name: PHP 7.4 Alpine 3.12
+      runs-on: ubuntu-latest
+      steps:
+        - name: "Checkout"
+          uses: "actions/checkout@v2"
+
+        - name: "Build extension"
+          run: "docker build -t simdjsontest -f docker_php7.4-alpine ."
+
+        - name: "Show"
+          run: "docker run --rm simdjsontest php --ri simdjson"

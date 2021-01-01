@@ -1,17 +1,6 @@
 # Benchmark
 
-## Build project
-
-Build the project from the project root folder:
- 
-``` 
-phpize
-./configure
-make
-make test
-```
-
-## Install PHP Composer dependecies
+## Install PHP Composer dependencies
 
 [Install Composer](https://getcomposer.org/download/) if not already done and execute it in the benchmark folder:
 
@@ -21,15 +10,15 @@ composer install
 
 ## Run PHPBench benchmark
 
-Execute from project root folder:
+Execute the following command from the root folder:
 
 ```
-php benchmark/vendor/bin/phpbench run --report=table --group decode
+php ./benchmark/vendor/bin/phpbench run --report=table --group decode
 ```
 
 The output should look like this:
 
-``` 
+```
 \SimdjsonBench\DecodeBench
 
     jsonDecodeAssoc.........................R4 I4 [μ Mo]/r: 0.00972 0.00978 (ms) [μSD μRSD]/r: 0.000ms 2.10%
@@ -52,12 +41,12 @@ suite: 1343d64965925446273f4815a25108531738fcaf, date: 2020-08-04, stime: 16:30:
 ```
 
 ```
-php benchmark/vendor/bin/phpbench run --report=table --group key_value
+php ./benchmark/vendor/bin/phpbench run --report=table --group key_value
 ```
 
 The output should look like this:
 
-``` 
+```
 \SimdjsonBench\KeyValueBench
 
     jsonDecode..............................R1 I4 [μ Mo]/r: 0.00968 0.00962 (ms) [μSD μRSD]/r: 0.000ms 2.11%
@@ -86,12 +75,12 @@ suite: 1343d642240d34ab476549affaa92a81d4f7ce57, date: 2020-08-04, stime: 16:31:
 ```
 
 ```
-php benchmark/vendor/bin/phpbench run --report=table --group multiple
+php ./benchmark/vendor/bin/phpbench run --report=table --group multiple
 ```
 
 The output should look like this:
 
-``` 
+```
 \SimdjsonBench\MultipleAccessBench
 
     simdjsonMultipleAccessSameDocument......R1 I4 [μ Mo]/r: 0.01500 0.01481 (ms) [μSD μRSD]/r: 0.000ms 2.39%
@@ -111,8 +100,8 @@ suite: 1343d643ab682962f20a6f8c0f5615c1b987a7bc, date: 2020-08-04, stime: 16:29:
 
 ## Run benchmark
 
-You may run the benchmarks by running the commands:
+You may also run the custom benchmarks by executing the following command:
 
 ```
-php -d extension=modules/simdjson.so benchmark/test.php
+php ./benchmark/benchmark.php
 ```
