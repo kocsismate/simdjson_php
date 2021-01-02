@@ -21,9 +21,16 @@
 extern "C" {
 	#include <ext/json/php_json.h>
 	#include <Zend/zend_exceptions.h>
+	#include <Zend/zend_object_handlers.h>
 }
 
 extern PHP_JSON_API zend_class_entry *php_json_exception_ce;
+
+#if PHP_VERSION_ID < 80000
+extern ZEND_API zval *zend_std_write_property(zval *object, zend_string *member, zval *value, void **cache_slot);
+#else
+extern ZEND_API zval *zend_std_write_property(zend_object *object, zval *member, zval *value, void **cache_slot);
+#endif
 
 // see https://github.com/simdjson/simdjson/blob/master/doc/performance.md#reusing-the-parser-for-maximum-efficiency
 simdjson::dom::parser parser;
@@ -52,9 +59,11 @@ static zval create_array(simdjson::dom::element element)
     zval v;
 
     switch (element.type()) {
-        //ASCII sort
         case simdjson::dom::element_type::STRING :
-            ZVAL_STRING(&v, std::string_view(element).data());
+        	{
+				std::string_view str(element);
+            	ZVAL_STRINGL(&v, str.data(), str.length());
+            }
             break;
         case simdjson::dom::element_type::INT64 : ZVAL_LONG(&v, int64_t(element));
             break;
@@ -69,25 +78,21 @@ static zval create_array(simdjson::dom::element element)
             ZVAL_NULL(&v);
             break;
         case simdjson::dom::element_type::ARRAY :
-            zval arr;
-            array_init(&arr);
+            array_init_size(&v, simdjson::dom::array(element).size());
 
             for (simdjson::dom::element child : simdjson::dom::array(element)) {
                 zval value = create_array(child);
-                add_next_index_zval(&arr, &value);
+                add_next_index_zval(&v, &value);
             }
 
-            v = arr;
             break;
         case simdjson::dom::element_type::OBJECT :
-            zval obj;
-            array_init(&obj);
+            array_init(&v);
 
-            for (simdjson::dom::key_value_pair field : simdjson::dom::object(element)) {
-                zval value = create_array(field.value);
-                add_assoc_zval_ex(&obj, field.key.data(), strlen(field.key.data()), &value);
+            for (simdjson::dom::object::iterator it = simdjson::dom::object(element).begin(); it != simdjson::dom::object(element).end(); ++it) {
+                zval value = create_array(it.value());
+                add_assoc_zval_ex(&v, it.key_c_str(), it.key_length(), &value);
             }
-            v = obj;
             break;
         default:
             break;
@@ -101,9 +106,11 @@ static zval create_object(simdjson::dom::element element)
     zval v;
 
     switch (element.type()) {
-        //ASCII sort
         case simdjson::dom::element_type::STRING :
-            ZVAL_STRING(&v, std::string_view(element).data());
+        	{
+				std::string_view str(element);
+				ZVAL_STRINGL(&v, str.data(), str.length());
+			}
             break;
         case simdjson::dom::element_type::INT64 : ZVAL_LONG(&v, int64_t(element));
             break;
@@ -118,25 +125,24 @@ static zval create_object(simdjson::dom::element element)
             ZVAL_NULL(&v);
             break;
         case simdjson::dom::element_type::ARRAY :
-            zval arr;
-            array_init(&arr);
+            array_init(&v);
 
             for (simdjson::dom::element child : simdjson::dom::array(element)) {
                 zval value = create_object(child);
-                add_next_index_zval(&arr, &value);
+                add_next_index_zval(&v, &value);
             }
-
-            v = arr;
             break;
         case simdjson::dom::element_type::OBJECT :
-            zval obj;
-            object_init(&obj);
+            object_init(&v);
 
             for (simdjson::dom::key_value_pair field : simdjson::dom::object(element)) {
                 zval value = create_object(field.value);
-                add_property_zval_ex(&obj, field.key.data(), strlen(field.key.data()), &value);
+#if PHP_VERSION_ID < 80000
+                zend_std_write_property(&v, zend_string_init(field.key.data(), strlen(field.key.data()), 0), &value, NULL);
+#else
+				zend_std_write_property(Z_OBJ(v), zend_string_init(field.key.data(), strlen(field.key.data()), 0), &value, NULL);
+#endif
             }
-            v = obj;
             break;
         default:
             break;
@@ -154,7 +160,7 @@ bool cplus_simdjson_is_valid(const char *json, size_t len)
     return true;
 }
 
-void cplus_simdjson_parse(const char *json, size_t len, zval *return_value, unsigned char assoc, u_short depth)
+void cplus_simdjson_parse(const char *json, size_t len, zval *return_value, zend_bool assoc, zend_long depth)
 {
     simdjson::dom::element doc;
     auto error = build_parsed_json_cust(doc, json, len, true, depth);
@@ -171,7 +177,7 @@ void cplus_simdjson_parse(const char *json, size_t len, zval *return_value, unsi
 }
 
 void cplus_simdjson_key_value(
-	const char *json, size_t len, const char *key, zval *return_value, unsigned char assoc, u_short depth
+	const char *json, size_t len, const char *key, zval *return_value, zend_bool assoc, zend_long depth
 ) {
     simdjson::dom::element doc;
     simdjson::dom::element element;
@@ -195,7 +201,7 @@ void cplus_simdjson_key_value(
     }
 }
 
-u_short cplus_simdjson_key_exists(const char *json, size_t len, const char *key, u_short depth)
+u_short cplus_simdjson_key_exists(const char *json, size_t len, const char *key, zend_long depth)
 {
     simdjson::dom::element doc;
     auto error = build_parsed_json_cust(doc, json, len, true, depth);
@@ -209,7 +215,7 @@ u_short cplus_simdjson_key_exists(const char *json, size_t len, const char *key,
     return SIMDJSON_PARSE_KEY_EXISTS;
 }
 
-void cplus_simdjson_key_count(const char *json, size_t len, const char *key, zval *return_value, u_short depth)
+void cplus_simdjson_key_count(const char *json, size_t len, const char *key, zval *return_value, zend_long depth)
 {
     simdjson::dom::element doc;
     simdjson::dom::element element;
@@ -226,15 +232,12 @@ void cplus_simdjson_key_count(const char *json, size_t len, const char *key, zva
         RETURN_THROWS();
     }
 
-    zval v;
     switch (element.type()) {
-        //ASCII sort
-        case simdjson::dom::element_type::ARRAY : ZVAL_LONG(&v, uint64_t(simdjson::dom::array(element).size()));
+        case simdjson::dom::element_type::ARRAY : ZVAL_LONG(return_value, uint64_t(simdjson::dom::array(element).size()));
             break;
-        case simdjson::dom::element_type::OBJECT : ZVAL_LONG(&v, uint64_t(simdjson::dom::object(element).size()));
+        case simdjson::dom::element_type::OBJECT : ZVAL_LONG(return_value, uint64_t(simdjson::dom::object(element).size()));
             break;
-        default: ZVAL_LONG(&v, 0);
+        default: ZVAL_LONG(return_value, 0);
             break;
     }
-    *return_value = v;
 }

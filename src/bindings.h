@@ -16,10 +16,10 @@
 extern "C" {
 #endif
     bool cplus_simdjson_is_valid(const char *json, size_t len);
-    void cplus_simdjson_parse(const char *json, size_t len, zval *return_value, unsigned char assoc, u_short depth);
-    void cplus_simdjson_key_value(const char *json, size_t len, const char *key, zval *return_value, unsigned char assoc, u_short depth);
-    u_short cplus_simdjson_key_exists(const char *json, size_t len, const char *key, u_short depth);
-    void cplus_simdjson_key_count(const char *json, size_t len, const char *key, zval *return_value, u_short depth);
+    void cplus_simdjson_parse(const char *json, size_t len, zval *return_value, zend_bool assoc, zend_long depth);
+    void cplus_simdjson_key_value(const char *json, size_t len, const char *key, zval *return_value, zend_bool assoc, zend_long depth);
+    u_short cplus_simdjson_key_exists(const char *json, size_t len, const char *key, zend_long depth);
+    void cplus_simdjson_key_count(const char *json, size_t len, const char *key, zval *return_value, zend_long depth);
 #ifdef __cplusplus
 }
 #endif

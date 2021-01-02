@@ -75,6 +75,12 @@ PHP_METHOD(JsonParser, parse)
 		Z_PARAM_LONG(flags)
 	ZEND_PARSE_PARAMETERS_END();
 
+	if (depth < 0) {
+		VALUE_ERROR(3, "depth", "must be greater than or equal to 0");
+	} else if (depth >= USHRT_MAX) {
+		VALUE_ERROR(3, "depth", "is too large");
+	}
+
     cplus_simdjson_parse(ZSTR_VAL(json), ZSTR_LEN(json), return_value, assoc, depth + 1);
 }
 
@@ -95,6 +101,12 @@ PHP_METHOD(JsonParser, getKeyValue)
 		Z_PARAM_LONG(flags)
 	ZEND_PARSE_PARAMETERS_END();
 
+	if (depth < 0) {
+		VALUE_ERROR(4, "depth", "must be greater than or equal to 0");
+	} else if (depth >= USHRT_MAX) {
+		VALUE_ERROR(4, "depth", "is too large");
+	}
+
     cplus_simdjson_key_value(ZSTR_VAL(json), ZSTR_LEN(json), ZSTR_VAL(key), return_value, assoc, depth + 1);
 }
 
@@ -112,6 +124,12 @@ PHP_METHOD(JsonParser, getKeyCount)
 		Z_PARAM_LONG(depth)
 	ZEND_PARSE_PARAMETERS_END();
 
+	if (depth < 0) {
+		VALUE_ERROR(3, "depth", "must be greater than or equal to 0");
+	} else if (depth >= USHRT_MAX) {
+		VALUE_ERROR(3, "depth", "is too large");
+	}
+
 	cplus_simdjson_key_count(ZSTR_VAL(json), ZSTR_LEN(json), ZSTR_VAL(key), return_value, depth + 1);
 }
 
@@ -128,6 +146,12 @@ PHP_METHOD(JsonParser, keyExists)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(depth)
 	ZEND_PARSE_PARAMETERS_END();
+
+	if (depth < 0) {
+		VALUE_ERROR(3, "depth", "must be greater than or equal to 0");
+	} else if (depth >= USHRT_MAX) {
+		VALUE_ERROR(3, "depth", "is too large");
+	}
 
     u_short stats = SIMDJSON_PARSE_FAIL;
     stats = cplus_simdjson_key_exists(ZSTR_VAL(json), ZSTR_LEN(json), ZSTR_VAL(key), depth + 1);
